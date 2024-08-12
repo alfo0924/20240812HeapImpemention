@@ -4,8 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8cf569dd-5a3a-4834-9ec1-0678d659749f" name="Changes" comment="v1.01 cnp">
-      <change afterPath="$PROJECT_DIR$/src/main/java/fcu/web/ProducerConsumerGUI.java" afterDir="false" />
+    <list default="true" id="8cf569dd-5a3a-4834-9ec1-0678d659749f" name="Changes" comment="v1.02 add ProducerConsumerGUI class cnp">
+      <change beforePath="$PROJECT_DIR$/src/main/java/fcu/web/ProducerConsumerGUI.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fcu/web/ProducerConsumerGUI.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -35,6 +35,7 @@
   "keyToString": {
     "Application.ProducerConsumerGUI.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "git-widget-placeholder": "master",
     "ignore.virus.scanning.warn.message": "true",
     "kotlin-language-version-configured": "true",
@@ -94,7 +95,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1723440847527</updated>
-      <workItem from="1723440848687" duration="451000" />
+      <workItem from="1723440848687" duration="949000" />
     </task>
     <task id="LOCAL-00001" summary="v1.01 cnp">
       <option name="closed" value="true" />
@@ -104,7 +105,15 @@
       <option name="project" value="LOCAL" />
       <updated>1723441037701</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="v1.02 add ProducerConsumerGUI class cnp">
+      <option name="closed" value="true" />
+      <created>1723441424720</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1723441424720</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -112,6 +121,7 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="v1.01 cnp" />
-    <option name="LAST_COMMIT_MESSAGE" value="v1.01 cnp" />
+    <MESSAGE value="v1.02 add ProducerConsumerGUI class cnp" />
+    <option name="LAST_COMMIT_MESSAGE" value="v1.02 add ProducerConsumerGUI class cnp" />
   </component>
 </project>
