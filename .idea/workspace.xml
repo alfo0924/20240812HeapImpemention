@@ -5,7 +5,6 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8cf569dd-5a3a-4834-9ec1-0678d659749f" name="Changes" comment="v1.055 fix ProducerConsumerGUI class cnp">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/fcu/web/ProducerConsumerGUI.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fcu/web/ProducerConsumerGUI.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -96,7 +95,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1723440847527</updated>
-      <workItem from="1723440848687" duration="4689000" />
+      <workItem from="1723440848687" duration="6279000" />
     </task>
     <task id="LOCAL-00001" summary="v1.01 cnp">
       <option name="closed" value="true" />
@@ -146,7 +145,15 @@
       <option name="project" value="LOCAL" />
       <updated>1723446690584</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="v1.055 fix ProducerConsumerGUI class cnp">
+      <option name="closed" value="true" />
+      <created>1723448378174</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1723448378174</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
