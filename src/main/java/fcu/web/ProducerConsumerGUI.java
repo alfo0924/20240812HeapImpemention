@@ -6,19 +6,24 @@ import java.awt.event.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class ProducerConsumerGUI extends JFrame {
     private JTextField bufferSizeField;
     private JButton startButton;
     private JTextArea logArea;
     private JTextArea bufferContentArea;
+    private JProgressBar bufferProgressBar;
+    private BufferChart bufferChart;
     private PriorityBlockingQueue<Item> buffer;
     private volatile boolean isRunning = false;
     private ExecutorService executorService;
+    private final AtomicInteger currentBufferSize = new AtomicInteger(0);
+    private int maxBufferSize;
 
     public ProducerConsumerGUI() {
         setTitle("生產者-消費者模式");
-        setSize(600, 400);
+        setSize(800, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
@@ -31,7 +36,7 @@ public class ProducerConsumerGUI extends JFrame {
 
         add(topPanel, BorderLayout.NORTH);
 
-        JPanel centerPanel = new JPanel(new GridLayout(1, 2));
+        JPanel centerPanel = new JPanel(new GridLayout(2, 2));
         logArea = new JTextArea();
         logArea.setEditable(false);
         centerPanel.add(new JScrollPane(logArea));
@@ -40,31 +45,38 @@ public class ProducerConsumerGUI extends JFrame {
         bufferContentArea.setEditable(false);
         centerPanel.add(new JScrollPane(bufferContentArea));
 
+        bufferProgressBar = new JProgressBar(0, 100);
+        bufferProgressBar.setStringPainted(true);
+        centerPanel.add(bufferProgressBar);
+
+        bufferChart = new BufferChart();
+        centerPanel.add(bufferChart);
+
         add(centerPanel, BorderLayout.CENTER);
 
-        startButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                if (!isRunning) {
-                    startSimulation();
-                } else {
-                    stopSimulation();
-                }
+        startButton.addActionListener(e -> {
+            if (!isRunning) {
+                startSimulation();
+            } else {
+                stopSimulation();
             }
         });
     }
 
     private void startSimulation() {
         try {
-            int bufferSize = Integer.parseInt(bufferSizeField.getText());
-            if (bufferSize <= 0) {
+            maxBufferSize = Integer.parseInt(bufferSizeField.getText());
+            if (maxBufferSize <= 0) {
                 throw new IllegalArgumentException("Buffer大小必須大於0");
             }
-            buffer = new PriorityBlockingQueue<>(bufferSize, Comparator.comparingInt(Item::getId));
+            buffer = new PriorityBlockingQueue<>(maxBufferSize, Comparator.comparingInt(Item::getId));
+            currentBufferSize.set(0);
             isRunning = true;
             startButton.setText("停止");
             executorService = Executors.newFixedThreadPool(2);
             executorService.submit(new Producer());
             executorService.submit(new Consumer());
+            bufferProgressBar.setMaximum(maxBufferSize);
             log("開始模擬...");
         } catch (NumberFormatException ex) {
             JOptionPane.showMessageDialog(this, "請輸入有效的Buffer大小");
@@ -96,10 +108,14 @@ public class ProducerConsumerGUI extends JFrame {
             while (!tempQueue.isEmpty()) {
                 bufferContentArea.append(tempQueue.poll().toString() + "\n");
             }
+            int size = currentBufferSize.get();
+            bufferProgressBar.setValue(size);
+            bufferProgressBar.setString(size + " / " + maxBufferSize);
+            bufferChart.updateChart(size);
         });
     }
 
-    private class Item implements Comparable<Item> {
+    private static class Item implements Comparable<Item> {
         private final String timestamp;
         private final int id;
 
@@ -124,22 +140,25 @@ public class ProducerConsumerGUI extends JFrame {
     }
 
     private class Producer implements Runnable {
-        private Random random = new Random();
-        private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        private final Random random = new Random();
+        private final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
         public void run() {
             while (isRunning) {
                 try {
-                    if (buffer.size() < Integer.parseInt(bufferSizeField.getText())) {
+                    if (currentBufferSize.get() < maxBufferSize) {
                         Item item = createItem();
                         buffer.put(item);
-                        log("生產: " + item + " (Buffer大小: " + buffer.size() + ")");
+                        int newSize = currentBufferSize.incrementAndGet();
+                        log("生產: " + item + " (Buffer大小: " + newSize + ")");
                         updateBufferContent();
                     }
                     Thread.sleep(200);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     break;
+                } catch (Exception e) {
+                    log("生產者發生錯誤: " + e.getMessage());
                 }
             }
         }
@@ -155,14 +174,59 @@ public class ProducerConsumerGUI extends JFrame {
         public void run() {
             while (isRunning) {
                 try {
-                    Item item = buffer.take(); // 自動取出最小編號的物品
-                    log("消費: " + item + " (Buffer大小: " + buffer.size() + ")");
+                    Item item = buffer.take();
+                    int newSize = currentBufferSize.decrementAndGet();
+                    log("消費: " + item + " (Buffer大小: " + newSize + ")");
                     updateBufferContent();
-                    Thread.sleep(300); // 消費者速度稍慢於生產者
+                    Thread.sleep(300);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     break;
+                } catch (Exception e) {
+                    log("消費者發生錯誤: " + e.getMessage());
                 }
+            }
+        }
+    }
+
+    private class BufferChart extends JPanel {
+        private static final int MAX_POINTS = 100;
+        private final LinkedList<Integer> dataPoints = new LinkedList<>();
+
+        public BufferChart() {
+            setPreferredSize(new Dimension(300, 200));
+        }
+
+        public void updateChart(int value) {
+            dataPoints.addLast(value);
+            if (dataPoints.size() > MAX_POINTS) {
+                dataPoints.removeFirst();
+            }
+            repaint();
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            if (dataPoints.isEmpty()) return;
+
+            Graphics2D g2 = (Graphics2D) g;
+            int w = getWidth();
+            int h = getHeight();
+            g2.setColor(Color.BLACK);
+            g2.drawLine(0, h - 1, w, h - 1);
+            g2.drawLine(0, 0, 0, h - 1);
+
+            int xScale = w / MAX_POINTS;
+            int yScale = h / maxBufferSize;
+
+            g2.setColor(Color.BLUE);
+            for (int i = 0; i < dataPoints.size() - 1; i++) {
+                int x1 = i * xScale;
+                int y1 = h - dataPoints.get(i) * yScale;
+                int x2 = (i + 1) * xScale;
+                int y2 = h - dataPoints.get(i + 1) * yScale;
+                g2.drawLine(x1, y1, x2, y2);
             }
         }
     }
