@@ -2,36 +2,30 @@ package fcu.web;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class ProducerConsumerGUI extends JFrame {
-    // GUI 元件
     private JTextField bufferSizeField;
     private JButton startButton;
     private JTextArea logArea;
     private JTextArea bufferContentArea;
     private JProgressBar bufferProgressBar;
     private BufferChart bufferChart;
-
-    // 緩衝區和執行緒控制
     private PriorityBlockingQueue<Item> buffer;
     private volatile boolean isRunning = false;
     private ExecutorService executorService;
     private final AtomicInteger currentBufferSize = new AtomicInteger(0);
     private int maxBufferSize;
 
-    // 構造函數
     public ProducerConsumerGUI() {
         setTitle("D1204433 林俊傑 生產者-消費者模式");
         setSize(800, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
-        // 頂部面板設置
         JPanel topPanel = new JPanel();
         topPanel.add(new JLabel("Buffer大小:"));
         bufferSizeField = new JTextField(5);
@@ -40,7 +34,6 @@ public class ProducerConsumerGUI extends JFrame {
         topPanel.add(startButton);
         add(topPanel, BorderLayout.NORTH);
 
-        // 中央面板設置
         JPanel centerPanel = new JPanel(new GridLayout(2, 2));
         logArea = new JTextArea();
         logArea.setEditable(false);
@@ -59,7 +52,6 @@ public class ProducerConsumerGUI extends JFrame {
 
         add(centerPanel, BorderLayout.CENTER);
 
-        // 按鈕事件監聽器
         startButton.addActionListener(e -> {
             if (!isRunning) {
                 startSimulation();
@@ -69,14 +61,12 @@ public class ProducerConsumerGUI extends JFrame {
         });
     }
 
-    // 開始模擬
     private void startSimulation() {
         try {
             maxBufferSize = Integer.parseInt(bufferSizeField.getText());
             if (maxBufferSize <= 0) {
                 throw new IllegalArgumentException("Buffer大小必須大於0");
             }
-            // 初始化優先隊列作為緩衝區
             buffer = new PriorityBlockingQueue<>(maxBufferSize, Comparator.comparingInt(Item::getId));
             currentBufferSize.set(0);
             isRunning = true;
@@ -93,7 +83,6 @@ public class ProducerConsumerGUI extends JFrame {
         }
     }
 
-    // 停止模擬
     private void stopSimulation() {
         isRunning = false;
         startButton.setText("開始");
@@ -103,7 +92,6 @@ public class ProducerConsumerGUI extends JFrame {
         log("停止模擬...");
     }
 
-    // 記錄日誌
     private void log(String message) {
         SwingUtilities.invokeLater(() -> {
             logArea.append(message + "\n");
@@ -111,7 +99,6 @@ public class ProducerConsumerGUI extends JFrame {
         });
     }
 
-    // 更新緩衝區內容顯示
     private void updateBufferContent() {
         SwingUtilities.invokeLater(() -> {
             bufferContentArea.setText("");
@@ -126,7 +113,6 @@ public class ProducerConsumerGUI extends JFrame {
         });
     }
 
-    // 物品類別
     private static class Item implements Comparable<Item> {
         private final String timestamp;
         private final int id;
@@ -151,7 +137,6 @@ public class ProducerConsumerGUI extends JFrame {
         }
     }
 
-    // 生產者類別
     private class Producer implements Runnable {
         private final Random random = new Random();
         private final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -161,7 +146,7 @@ public class ProducerConsumerGUI extends JFrame {
                 try {
                     if (currentBufferSize.get() < maxBufferSize) {
                         Item item = createItem();
-                        buffer.put(item);  // 將物品加入緩衝區，O(log n)複雜度
+                        buffer.put(item);
                         int newSize = currentBufferSize.incrementAndGet();
                         log("生產: " + item + " (Buffer大小: " + newSize + ")");
                         updateBufferContent();
@@ -183,16 +168,15 @@ public class ProducerConsumerGUI extends JFrame {
         }
     }
 
-    // 消費者類別
     private class Consumer implements Runnable {
         public void run() {
             while (isRunning) {
                 try {
-                    Item item = buffer.take();  // 自動取出最小編號的物品，O(log n)複雜度
+                    Item item = buffer.take();
                     int newSize = currentBufferSize.decrementAndGet();
                     log("消費: " + item + " (Buffer大小: " + newSize + ")");
                     updateBufferContent();
-                    Thread.sleep(300);  // 消費者速度稍慢於生產者
+                    Thread.sleep(300);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     break;
@@ -203,7 +187,6 @@ public class ProducerConsumerGUI extends JFrame {
         }
     }
 
-    // 緩衝區圖表類別
     private class BufferChart extends JPanel {
         private static final int MAX_POINTS = 100;
         private final LinkedList<Integer> dataPoints = new LinkedList<>();
@@ -224,17 +207,14 @@ public class ProducerConsumerGUI extends JFrame {
         protected void paintComponent(Graphics g) {
             super.paintComponent(g);
             if (dataPoints.isEmpty()) return;
-
             Graphics2D g2 = (Graphics2D) g;
             int w = getWidth();
             int h = getHeight();
             g2.setColor(Color.BLACK);
             g2.drawLine(0, h - 1, w, h - 1);
             g2.drawLine(0, 0, 0, h - 1);
-
             int xScale = w / MAX_POINTS;
             int yScale = h / maxBufferSize;
-
             g2.setColor(Color.BLUE);
             for (int i = 0; i < dataPoints.size() - 1; i++) {
                 int x1 = i * xScale;
@@ -246,7 +226,6 @@ public class ProducerConsumerGUI extends JFrame {
         }
     }
 
-    // 主方法
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new ProducerConsumerGUI().setVisible(true));
     }
