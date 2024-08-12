@@ -1,6 +1,6 @@
 # 生產者-消費者模型模擬器
 
-這個程式實現了一個生產者-消費者模型的圖形化介面，用於展示和模擬緩衝區的運作。它使用了堆積（Heap）數據結構來高效管理緩衝區中的物品。
+這個程式實現了一個基於堆積（Heap）數據結構的生產者-消費者模型模擬器，使用圖形化介面展示緩衝區的運作。
 
 ## 主要用途
 
@@ -30,29 +30,29 @@
 ```java
 // 開始模擬
 private void startSimulation() {
-    // ...
+    // 初始化緩衝區和啟動生產者消費者線程
 }
 
 // 停止模擬
 private void stopSimulation() {
-    // ...
+    // 停止所有線程和清理資源
 }
 
 // 更新緩衝區內容顯示
 private void updateBufferContent() {
-    // ...
+    // 更新GUI顯示的緩衝區內容
 }
 
 // 生產者運行邏輯
 private class Producer implements Runnable {
     public void run() {
-        // ...
+        // 生產物品並放入緩衝區
     }
 }
 
 // 消費者運行邏輯
 private class Consumer implements Runnable {
     public void run() {
-        // ...
+        // 從緩衝區取出物品並消費
     }
 }
